@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+
+	"codershangfeng/terraform-vote-provider/vote"
+)
 
 func main() {
-	fmt.Println("Hello, world!")
+	plugin.Serve(&plugin.ServeOpts{
+		ProviderFunc: func() *schema.Provider {
+			return vote.Provider()
+		},
+	})
 }
