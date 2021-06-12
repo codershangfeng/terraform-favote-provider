@@ -1,4 +1,4 @@
-# terraform-vote-service
+# terraform-vote-provider
 
 
 <!-- ## Steps
