@@ -1,4 +1,4 @@
-module codershangfeng/terraform-vote-provider
+module codershangfeng/terraform-favote-provider
 
 go 1.16
 
