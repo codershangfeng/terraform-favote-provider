@@ -52,6 +52,11 @@ func dataSourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface
 	}
 	defer r.Body.Close()
 
+	if r.StatusCode == http.StatusNotFound {
+		d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
+		return diags
+	}
+
 	v := new(vote)
 	err = json.NewDecoder(r.Body).Decode(&v)
 	if err != nil {
