@@ -9,3 +9,7 @@ bin
 
 # .tfstate files
 *.tfstate
+*.tfstate.backup
+
+# .terraform lock file
+.terraform.lock.hcl
