@@ -57,7 +57,7 @@ func dataSourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface
 		return diags
 	}
 
-	v := new(vote)
+	v := new(VoteDataSource)
 	err = json.NewDecoder(r.Body).Decode(&v)
 	if err != nil {
 		return diag.FromErr(err)
@@ -80,7 +80,7 @@ func dataSourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface
 	return diags
 }
 
-type vote struct {
+type VoteDataSource struct {
 	Id      int      `json:"id"`
 	Topic   string   `json:"topic"`
 	Options []string `json:"options"`
