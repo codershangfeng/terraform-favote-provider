@@ -7,12 +7,12 @@ LOCAL_MIRROR_DIR=${HOME}/.terraform.d/plugins
 
 .PHONY: fmt
 fmt:
-	go fmt ./...
+	@go fmt ./...
 
 .PHONY: build
 build: fmt
-	mkdir -p ./bin
-	go build \
+	@mkdir -p ./bin
+	@go build \
 	-o ./bin/${BINARY} ./main.go
 	@echo "\033[0;32mSuccessfully build application in ./bin/${BINARY}\033[0m"
 
@@ -21,11 +21,24 @@ run: fmt
 	go run ./main.go
 
 .PHONY: test
-test: fmt 
+test: fmt
 	go test ./...
 
 .PHONY: install
 install: fmt build
-	mkdir -p ${LOCAL_MIRROR_DIR}/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64/
+	@mkdir -p ${LOCAL_MIRROR_DIR}/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64/
 	@mv ./bin/${BINARY} ${LOCAL_MIRROR_DIR}/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/darwin_amd64/${BINARY}_${VERSION}
 	@echo "\033[0;32mSuccessfully install local provider\033[0m"
+
+.PHONY: tfinit
+tfinit: install
+	@rm -f ./examples/.terraform.lock.hcl
+	@cd ./examples ; terraform fmt && terraform init
+
+.PHONY: tfplan
+tfplan: tfinit
+	@cd ./examples ; terraform plan
+
+.PHONY: tfapply
+tfapply: tfinit
+	@cd ./examples ; terraform apply --auto-approve
