@@ -13,43 +13,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceVotes() *schema.Resource {
+func dataSourceVote() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceVotesRead,
+		ReadContext: dataSourceVoteRead,
 		Schema: map[string]*schema.Schema{
-			"votes": {
+			"vid": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"topic": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"options": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"topic": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"options": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-					},
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
 			},
 		},
 	}
 }
 
-func dataSourceVotesRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := &http.Client{Timeout: 10 * time.Second}
 
 	var diags diag.Diagnostics
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/votes", "http://localhost:8080"), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/vote/%s", "http://localhost:8080", d.Get("vid")), nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -60,17 +52,31 @@ func dataSourceVotesRead(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 	defer r.Body.Close()
 
-	votes := make([]map[string]interface{}, 0)
-	err = json.NewDecoder(r.Body).Decode(&votes)
+	v := new(vote)
+	err = json.NewDecoder(r.Body).Decode(&v)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err := d.Set("votes", votes); err != nil {
+	if err := d.Set("vid", strconv.Itoa(v.Id)); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := d.Set("topic", v.Topic); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := d.Set("options", v.Options); err != nil {
 		return diag.FromErr(err)
 	}
 
 	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
 
 	return diags
+}
+
+type vote struct {
+	Id      int      `json:"id"`
+	Topic   string   `json:"topic"`
+	Options []string `json:"options"`
 }

@@ -7,9 +7,11 @@ terraform {
   }
 }
 
-data "favote_votes" "all" {}
+data "favote_vote" "vote_1" {
+  vid = "1"
+}
 
 # Returns all favorites votes
-output "all_votes" {
-  value = data.favote_votes.all.votes
+output "vote_1" {
+  value = data.favote_vote.vote_1
 }
