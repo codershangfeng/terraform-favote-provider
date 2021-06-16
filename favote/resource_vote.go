@@ -80,6 +80,10 @@ func resourceVoteCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(errors.New("resource vote create failed"))
 	}
 
+	if err := d.Set("vid", vote.ID); err != nil {
+		return diag.FromErr(err)
+	}
+
 	d.SetId(fmt.Sprintf("%s/vote/%d", "http://localhost:8080", vote.ID))
 
 	return diags
@@ -103,6 +107,16 @@ func resourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface{}
 
 	if r.StatusCode == http.StatusNotFound {
 		return diags
+	}
+
+	var vote VoteResource
+	err = json.NewDecoder(r.Body).Decode(&vote)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := d.Set("vid", vote.ID); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return diags
