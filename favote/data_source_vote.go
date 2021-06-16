@@ -62,8 +62,6 @@ func dataSourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface
 
 	topic := d.Get("topic").(string)
 
-	d.SetId("")
-
 	for _, v := range votes {
 		if v.Topic == topic {
 			if err := d.Set("topic", v.Topic); err != nil {
