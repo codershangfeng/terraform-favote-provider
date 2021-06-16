@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,9 +16,15 @@ func dataSourceVote() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVoteRead,
 		Schema: map[string]*schema.Schema{
+			"vid": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "UUID for vote item",
+			},
 			"topic": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Vote topic",
 			},
 			"options": {
 				Type:     schema.TypeList,
@@ -27,6 +32,7 @@ func dataSourceVote() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Description: "Vote options against its topic",
 			},
 		},
 	}
@@ -68,7 +74,11 @@ func dataSourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface
 				return diag.FromErr(err)
 			}
 
-			d.SetId(strconv.Itoa(v.ID))
+			if err := d.Set("vid", v.ID); err != nil {
+				return diag.FromErr(err)
+			}
+
+			d.SetId(fmt.Sprintf("%s/vote/%d", "http://localhost:8080", v.ID))
 			break
 		}
 	}
