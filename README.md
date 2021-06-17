@@ -1,5 +1,12 @@
 # terraform-vote-provider
 
+## Terraform Plugins
+
+![](https://learn.hashicorp.com/img/terraform/providers/core-plugins-api.png)
+
+> Terraform is comprised of Terraform Core and Terraform Plugins.
+
+
 ## Task: [Extending Terraform]
 
 1. How Terraform Works
@@ -59,3 +66,5 @@ More details can be found in the `install` target of [Makefile](./Makefile)
 
 
 [Extending Terraform]:https://www.terraform.io/docs/extend/index.html
+
+[Perform CRUD Operations with Providers]:https://learn.hashicorp.com/tutorials/terraform/provider-use?in=terraform/configuration-language&utm_source=WEBSITE&utm_medium=WEB_IO&utm_offer=ARTICLE_PAGE&utm_content=DOCS
