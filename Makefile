@@ -47,3 +47,7 @@ tfclean:
 	@rm -f ./examples/.terraform.lock.hcl
 	@rm -f ./examples/terraform.tfstate
 	@rm -f ./examples/terraform.tfstate.backup
+
+.PHONY: tfreset # shorcut for all 
+tfreset: tfclean tfinit
+
