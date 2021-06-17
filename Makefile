@@ -44,6 +44,7 @@ tfapply:
 
 .PHONY: tfclean
 tfclean:
+	@rm -rf ./examples/.terraform
 	@rm -f ./examples/.terraform.lock.hcl
 	@rm -f ./examples/terraform.tfstate
 	@rm -f ./examples/terraform.tfstate.backup
