@@ -72,11 +72,11 @@ func dataSourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface
 				return diag.FromErr(err)
 			}
 
-			if err := d.Set("vid", v.ID); err != nil {
+			if err := d.Set("vid", v.VID); err != nil {
 				return diag.FromErr(err)
 			}
 
-			d.SetId(fmt.Sprintf("%s/vote/%d", "http://localhost:8080", v.ID))
+			d.SetId(fmt.Sprintf("%s/vote/%d", "http://localhost:8080", v.VID))
 			break
 		}
 	}
@@ -85,7 +85,7 @@ func dataSourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 type VoteDataSource struct {
-	ID      int      `json:"id"`
+	VID     int      `json:"vid"`
 	Topic   string   `json:"topic"`
 	Options []string `json:"options"`
 }

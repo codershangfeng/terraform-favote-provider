@@ -14,7 +14,7 @@ import (
 )
 
 type VoteResource struct {
-	ID      int      `json:"id"`
+	VID     *int     `json:"vid,omitempty"`
 	Topic   string   `json:"topic"`
 	Options []string `json:"options"`
 }
@@ -61,10 +61,8 @@ func resourceVoteCreate(ctx context.Context, d *schema.ResourceData, m interface
 		Topic:   d.Get("topic").(string),
 		Options: options,
 	}
-	// FIXME: should use the ID returned from vote-service
-	vote.ID = 333
-	res, _ := json.Marshal(vote)
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/votes", "http://localhost:8080"), bytes.NewBufferString(string(res)))
+	voteJSON, _ := json.Marshal(vote)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/votes", "http://localhost:8080"), bytes.NewBufferString(string(voteJSON)))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return diag.FromErr(err)
@@ -80,11 +78,17 @@ func resourceVoteCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(errors.New("resource vote create failed"))
 	}
 
-	if err := d.Set("vid", vote.ID); err != nil {
+	voteResponse := new(VoteResource)
+	err = json.NewDecoder(r.Body).Decode(voteResponse)
+	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(fmt.Sprintf("%s/vote/%d", "http://localhost:8080", vote.ID))
+	if err := d.Set("vid", voteResponse.VID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	d.SetId(fmt.Sprintf("%s/vote/%d", "http://localhost:8080", vote.VID))
 
 	return diags
 }
@@ -94,7 +98,7 @@ func resourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface{}
 
 	var diags diag.Diagnostics
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/vote/%s", "http://localhost:8080", d.Id()), nil)
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/vote/%s", "http://localhost:8080", d.Id()), nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -115,7 +119,7 @@ func resourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface{}
 		return diag.FromErr(err)
 	}
 
-	if err := d.Set("vid", vote.ID); err != nil {
+	if err := d.Set("vid", vote.VID); err != nil {
 		return diag.FromErr(err)
 	}
 
