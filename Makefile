@@ -42,3 +42,8 @@ tfplan: tfinit
 .PHONY: tfapply
 tfapply: tfinit
 	@cd ./examples ; terraform apply --auto-approve
+
+.PHONY: tfclean
+tfclean:
+	@rm -f ./examples/terraform.tfstate
+	@rm -f ./examples/terraform.tfstate.backup
