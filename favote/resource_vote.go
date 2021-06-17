@@ -171,5 +171,25 @@ func resourceVoteUpdate(ctx context.Context, d *schema.ResourceData, m interface
 func resourceVoteDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 
+	client := &http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequest(http.MethodDelete, d.Id(), nil)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	r, err := client.Do(req)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer r.Body.Close()
+
+	if r.StatusCode != http.StatusOK {
+		return diag.FromErr(errors.New("resource vote delete failed"))
+	}
+
+	// d.SetId("") is automatically called assuming delete returns no errors, but
+	// it is added here for explicitness.
+	d.SetId("")
+
 	return diags
 }
