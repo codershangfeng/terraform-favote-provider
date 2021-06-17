@@ -93,7 +93,7 @@ func resourceVoteCreate(ctx context.Context, d *schema.ResourceData, m interface
 		return diag.FromErr(err)
 	}
 
-	d.SetId(fmt.Sprintf("%s/vote/%d", "http://localhost:8080", vote.VID))
+	d.SetId(fmt.Sprintf("%s/vote/%d", "http://localhost:8080", *voteResponse.VID))
 
 	return diags
 }

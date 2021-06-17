@@ -32,18 +32,18 @@ install: fmt build
 
 .PHONY: tfinit
 tfinit: install
-	@rm -f ./examples/.terraform.lock.hcl
 	@cd ./examples ; terraform fmt && terraform init
 
 .PHONY: tfplan
-tfplan: tfinit
+tfplan: 
 	@cd ./examples ; terraform plan
 
 .PHONY: tfapply
-tfapply: tfinit
+tfapply: 
 	@cd ./examples ; terraform apply --auto-approve
 
 .PHONY: tfclean
 tfclean:
+	@rm -f ./examples/.terraform.lock.hcl
 	@rm -f ./examples/terraform.tfstate
 	@rm -f ./examples/terraform.tfstate.backup
