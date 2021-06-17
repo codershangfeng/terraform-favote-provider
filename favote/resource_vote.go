@@ -26,6 +26,11 @@ func resourceVote() *schema.Resource {
 		UpdateContext: resourceVoteUpdate,
 		DeleteContext: resourceVoteDelete,
 		Schema: map[string]*schema.Schema{
+			"last_updated": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"vid": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -127,9 +132,40 @@ func resourceVoteRead(ctx context.Context, d *schema.ResourceData, m interface{}
 }
 
 func resourceVoteUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
+	if d.HasChanges("topic") || d.HasChange("options") {
 
-	return diags
+		ops := d.Get("options").([]interface{})
+		options := make([]string, len(ops))
+		for i, v := range ops {
+			options[i] = v.(string)
+		}
+		vote := VoteResource{
+			Topic:   d.Get("topic").(string),
+			Options: options,
+		}
+		res, _ := json.Marshal(vote)
+
+		client := &http.Client{Timeout: 10 * time.Second}
+		req, err := http.NewRequest(http.MethodPut, d.Id(), bytes.NewBufferString(string(res)))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		r, err := client.Do(req)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		defer r.Body.Close()
+
+		if r.StatusCode != http.StatusOK {
+			return diag.FromErr(errors.New("resource vote update failed"))
+		}
+
+		d.Set("last_updated", time.Now().Format(time.RFC850))
+	}
+
+	return resourceVoteRead(ctx, d, m)
 }
 
 func resourceVoteDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
